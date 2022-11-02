@@ -23,12 +23,12 @@ func NewSocmedRepository(db *gorm.DB) SocmedRepository {
 	}
 }
 
-func (sc *socmedConnection) CreateSocmed(ctx context.Context, Socmed entity.SocialMedia) (entity.SocialMedia, error){}
+func (sc *socmedConnection) CreateSocmed(ctx context.Context, Socmed entity.SocialMedia) (entity.SocialMedia, error)
 
-func (sc *socmedConnection) GetSocmedByEmail(ctx context.Context, email string) (entity.SocialMedia, error){}
+func (sc *socmedConnection) GetSocmedByEmail(ctx context.Context, email string) (entity.SocialMedia, error)
 
-func (sc *socmedConnection) UpdateSocmed(ctx context.Context, Socmed entity.SocialMedia) (entity.SocialMedia, error){}
+func (sc *socmedConnection) UpdateSocmed(ctx context.Context, Socmed entity.SocialMedia) (entity.SocialMedia, error)
 
-func (sc *socmedConnection) DeleteSocmed(ctx context.Context, SocmedID uint64) error {}
+func (sc *socmedConnection) DeleteSocmed(ctx context.Context, SocmedID uint64) error 
 
 

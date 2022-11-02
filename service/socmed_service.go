@@ -23,10 +23,10 @@ func NewSocmedService(sr repository.SocmedRepository) SocmedService {
 	}
 }
 
-func (sr *socmedService) GetSocmedInfo(ctx context.Context) (entity.SocialMedia, error) {}
-func (sr *socmedService) AddNewSocmed(ctx context.Context, email string) (entity.SocialMedia, error) {}
-func (sr *socmedService) DeleteSocmed(ctx context.Context, email string) (entity.SocialMedia, error) {}
-func (sr *socmedService) UpdateSocmed(ctx context.Context, email string) (entity.SocialMedia, error) {}
+func (sr *socmedService) GetSocmedInfo(ctx context.Context) (entity.SocialMedia, error) 
+func (sr *socmedService) AddNewSocmed(ctx context.Context, email string) (entity.SocialMedia, error) 
+func (sr *socmedService) DeleteSocmed(ctx context.Context, email string) (entity.SocialMedia, error) 
+func (sr *socmedService) UpdateSocmed(ctx context.Context, email string) (entity.SocialMedia, error) 
 
 
 

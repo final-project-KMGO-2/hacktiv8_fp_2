@@ -22,22 +22,25 @@ func main() {
 	var (
 		db             *gorm.DB                  = config.SetupDatabaseConnection()
 		userRepository repository.UserRepository = repository.NewUserRepository(db)
+		socmedRepository repository.SocmedRepository = repository.NewSocmedRepository(db)
 		// productRepository repository.ProductRepository = repository.NewProductRepository(db)
 
 		jwtService  service.JWTService  = service.NewJWTService()
 		userService service.UserService = service.NewUserService(userRepository)
 		authService service.AuthService = service.NewAuthService(userRepository)
-		// productService service.ProductService = service.NewProductService(productRepository)
+		socmedService service.SocmedService = service.NewSocmedService(socmedRepository)
 
 		// productController controller.ProductController = controller.NewProductController(productService, jwtService)
 		authController controller.AuthController = controller.NewAuthController(userService, authService, jwtService)
+		socmedController controller.SocmedController = controller.NewSocmedController(userService, socmedService, jwtService)
 	)
 
 	defer config.CloseDatabaseConnection(db)
 
 	server := gin.Default()
 
-	routes.AuthRoutes(server, authController)
+	routes.AuthRoutes(server, authController);
+	routes.SocMedRoutes(server, socmedController);
 	// routes.ProductRoutes(server, productController, jwtService, productService)
 	port := os.Getenv("PORT")
 	if port == "" {

@@ -6,12 +6,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SocMedRoutes(router *gin.Engine) {
+func SocMedRoutes(router *gin.Engine, socmedController controller.SocmedController) {
 	smRoutes := router.Group("/socialmedias")
 	{
-		smRoutes.POST("/", )
-		smRoutes.GET("/",)
-		smRoutes.PUT("/{id}")
-		smRoutes.DELETE("/{id}")
+		smRoutes.POST("/", socmedController.PostSocmed)
+		smRoutes.GET("/", socmedController.GetSocmed)
+		smRoutes.PUT("/:id", socmedController.UpdateSocmedById)
+		smRoutes.DELETE("/:id", socmedController.DeleteSocmedById)
 	}
 }

@@ -7,9 +7,9 @@ import (
 )
 
 func AuthRoutes(router *gin.Engine, authController controller.AuthController) {
-	orderRoutes := router.Group("/auth")
+	authRoutes := router.Group("/auth")
 	{
-		orderRoutes.POST("/register", authController.Register)
-		orderRoutes.POST("/login", authController.Login)
+		authRoutes.POST("/register", authController.Register)
+		authRoutes.POST("/login", authController.Login)
 	}
 }

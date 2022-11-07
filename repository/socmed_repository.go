@@ -2,7 +2,10 @@ package repository
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"hacktiv8_fp_2/entity"
+
 	"gorm.io/gorm"
 )
 
@@ -23,12 +26,27 @@ func NewSocmedRepository(db *gorm.DB) SocmedRepository {
 	}
 }
 
-func (sc *socmedConnection) CreateSocmed(ctx context.Context, Socmed entity.SocialMedia) (entity.SocialMedia, error)
+func (sc *socmedConnection) CreateSocmed(ctx context.Context, socmed entity.SocialMedia) (entity.SocialMedia, error) {
+	fmt.Print("socmed repo -> ")
+	fmt.Printf("%+v\n", socmed)
+	tx := sc.connection.Create(&socmed)
+	if tx.Error != nil {
+		return entity.SocialMedia{}, tx.Error
+	}
 
-func (sc *socmedConnection) GetSocmedByEmail(ctx context.Context, email string) (entity.SocialMedia, error)
+	return socmed, nil
+}
 
-func (sc *socmedConnection) UpdateSocmed(ctx context.Context, Socmed entity.SocialMedia) (entity.SocialMedia, error)
+func (sc *socmedConnection) GetSocmedByEmail(ctx context.Context, email string) (entity.SocialMedia, error) {
+	return entity.SocialMedia{}, errors.New("hai")
+}
 
-func (sc *socmedConnection) DeleteSocmed(ctx context.Context, SocmedID uint64) error 
+func (sc *socmedConnection) UpdateSocmed(ctx context.Context, Socmed entity.SocialMedia) (entity.SocialMedia, error) {
+	return entity.SocialMedia{}, errors.New("hai")
 
+}
 
+func (sc *socmedConnection) DeleteSocmed(ctx context.Context, SocmedID uint64) error {
+	return errors.New("hai")
+
+}

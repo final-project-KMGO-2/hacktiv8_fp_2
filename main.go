@@ -34,7 +34,7 @@ func main() {
 		userService  service.UserService  = service.NewUserService(userRepository)
 		authService  service.AuthService  = service.NewAuthService(userRepository)
 		photoService service.PhotoService = service.NewPhotoService(photoRepository)
-		socmedService service.SocmedService = service.NewSocmedService(socmedRepository)
+		socmedService service.SocmedService = service.NewSocmedService(socmedRepository, userRepository)
 
 		authController  controller.AuthController  = controller.NewAuthController(userService, authService, jwtService)
 		photoController controller.PhotoController = controller.NewPhotoController(photoService, jwtService)
@@ -47,8 +47,7 @@ func main() {
 	server := gin.Default()
 
 	routes.AuthRoutes(server, authController);
-	routes.SocMedRoutes(server, socmedController);
-	routes.AuthRoutes(server, authController)
+	routes.SocMedRoutes(server, socmedController, jwtService);
 	routes.PhotoRoutes(server, photoController, photoService, jwtService)
 	// routes.ProductRoutes(server, productController, jwtService, productService)
 	port := os.Getenv("PORT")
@@ -70,7 +69,7 @@ func main() {
 
 	quit := make(chan os.Signal, 1)
 
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)	
 	<-quit
 	log.Printf("[%v] - Shutting down server\n", time.Now())
 

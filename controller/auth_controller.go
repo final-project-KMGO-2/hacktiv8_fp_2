@@ -1,6 +1,7 @@
 package controller
 
 import (
+
 	"hacktiv8_fp_2/common"
 	"hacktiv8_fp_2/dto"
 	"hacktiv8_fp_2/service"
@@ -32,6 +33,7 @@ func NewAuthController(us service.UserService, as service.AuthService, js servic
 func (c *authController) Register(ctx *gin.Context) {
 	var registerDTO dto.UserRegisterDTO
 	errDTO := ctx.ShouldBind(&registerDTO)
+
 	if errDTO != nil {
 		response := common.BuildErrorResponse("Failed to process request", errDTO.Error(), common.EmptyObj{})
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)

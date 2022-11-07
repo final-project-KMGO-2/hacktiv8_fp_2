@@ -5,7 +5,6 @@ import (
 	"hacktiv8_fp_2/common"
 	"hacktiv8_fp_2/dto"
 	"hacktiv8_fp_2/service"
-	"io/ioutil"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -34,8 +33,8 @@ func NewSocmedController(us service.UserService, ss service.SocmedService, js se
 
 func (sc *socmedController) PostSocmed(ctx *gin.Context) {
 
-	body, _ := ioutil.ReadAll(ctx.Request.Body);
-	fmt.Println("bodynya -> ", string(body));
+	// body, _ := ioutil.ReadAll(ctx.Request.Body)
+	// fmt.Println("bodynya -> ", string(body));
 	var socmedDTO dto.SocialMediaCreateDTO
 	err := ctx.ShouldBind(&socmedDTO)
 	if err != nil {

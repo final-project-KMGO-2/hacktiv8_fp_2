@@ -12,7 +12,7 @@ func SocMedRoutes(router *gin.Engine, socmedController controller.SocmedControll
 	smRoutes := router.Group("/socialmedias")
 	{
 		smRoutes.POST("/", middleware.Authenticate(jwtService), socmedController.PostSocmed)
-		smRoutes.GET("/", socmedController.GetSocmed)
+		smRoutes.GET("", socmedController.GetSocmed)
 		smRoutes.PUT("/:id", socmedController.UpdateSocmedById)
 		smRoutes.DELETE("/:id", socmedController.DeleteSocmedById)
 	}

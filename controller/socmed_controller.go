@@ -32,9 +32,6 @@ func NewSocmedController(us service.UserService, ss service.SocmedService, js se
 }
 
 func (sc *socmedController) PostSocmed(ctx *gin.Context) {
-
-	// body, _ := ioutil.ReadAll(ctx.Request.Body)
-	// fmt.Println("bodynya -> ", string(body));
 	var socmedDTO dto.SocialMediaCreateDTO
 	err := ctx.ShouldBind(&socmedDTO)
 	if err != nil {
@@ -69,6 +66,55 @@ func (sc *socmedController) PostSocmed(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, response)
 }
 
-func (sc *socmedController) GetSocmed(ctx *gin.Context)        {}
-func (sc *socmedController) UpdateSocmedById(ctx *gin.Context) {}
-func (sc *socmedController) DeleteSocmedById(ctx *gin.Context) {}
+func (sc *socmedController) GetSocmed(ctx *gin.Context) {
+	data, err := sc.socmedService.GetSocmedInfo(ctx)
+
+	if err != nil {
+		response := common.BuildErrorResponse("Something went wrong, failed to get social medias", err.Error(), common.EmptyObj{})
+		ctx.JSON(http.StatusNotFound, response)
+		return
+	}
+	response := common.BuildResponse(true, "OK", data)
+	ctx.JSON(http.StatusOK, response)
+}
+func (sc *socmedController) UpdateSocmedById(ctx *gin.Context) {
+
+	var socmedUpdateDto dto.SocialMediaUpdateDTO
+	err := ctx.ShouldBind(&socmedUpdateDto)
+	if err != nil {
+		response := common.BuildErrorResponse("Something went wrong, failed to update the social media", err.Error(), common.EmptyObj{})
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+	token := ctx.MustGet("token").(string)
+	userId, err := sc.jwtService.GetUserIDByToken(token)
+
+	if err != nil {
+		response := common.BuildErrorResponse("Something went wrong, failed to update the social media", err.Error(), common.EmptyObj{})
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	data, err := sc.socmedService.UpdateSocmed(ctx, userId, socmedUpdateDto)
+
+	if err != nil {
+		response := common.BuildErrorResponse("Something went wrong, failed to update the social media", err.Error(), common.EmptyObj{})
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+
+	response := common.BuildResponse(true, "OK", data)
+	ctx.JSON(http.StatusOK, response)
+}
+
+func (sc *socmedController) DeleteSocmedById(ctx *gin.Context) {
+	id := ctx.MustGet("socialMediaId").(uint)
+	err := sc.socmedService.DeleteSocmed(ctx.Request.Context(), id)
+	if err != nil {
+		response := common.BuildErrorResponse("Something went wrong, failed to delete the social media", err.Error(), common.EmptyObj{})
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+	response := common.BuildResponse(true, "OK", common.EmptyObj{})
+	ctx.JSON(http.StatusOK, response)
+}

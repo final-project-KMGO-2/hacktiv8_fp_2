@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"hacktiv8_fp_2/entity"
 
@@ -11,9 +10,9 @@ import (
 
 type SocmedRepository interface {
 	CreateSocmed(ctx context.Context, Socmed entity.SocialMedia) (entity.SocialMedia, error)
-	GetSocmedByEmail(ctx context.Context, email string) (entity.SocialMedia, error)
-	UpdateSocmed(ctx context.Context, Socmed entity.SocialMedia) (entity.SocialMedia, error)
-	DeleteSocmed(ctx context.Context, SocmedID uint64) error
+	GetSocmeds(ctx context.Context) ([]entity.SocialMedia, error)
+	UpdateSocmed(ctx context.Context, socmed entity.SocialMedia) (entity.SocialMedia, error)
+	DeleteSocmed(ctx context.Context, id uint) error
 }
 
 type socmedConnection struct {
@@ -27,9 +26,9 @@ func NewSocmedRepository(db *gorm.DB) SocmedRepository {
 }
 
 func (sc *socmedConnection) CreateSocmed(ctx context.Context, socmed entity.SocialMedia) (entity.SocialMedia, error) {
+	tx := sc.connection.Preload("User").Create(&socmed)
 	fmt.Print("socmed repo -> ")
 	fmt.Printf("%+v\n", socmed)
-	tx := sc.connection.Create(&socmed)
 	if tx.Error != nil {
 		return entity.SocialMedia{}, tx.Error
 	}
@@ -37,16 +36,30 @@ func (sc *socmedConnection) CreateSocmed(ctx context.Context, socmed entity.Soci
 	return socmed, nil
 }
 
-func (sc *socmedConnection) GetSocmedByEmail(ctx context.Context, email string) (entity.SocialMedia, error) {
-	return entity.SocialMedia{}, errors.New("hai")
+func (sc *socmedConnection) GetSocmeds(ctx context.Context) ([]entity.SocialMedia, error) {
+	var socmed []entity.SocialMedia
+	tx := sc.connection.Preload("Users").Find(&socmed)
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+	return socmed, nil
 }
 
-func (sc *socmedConnection) UpdateSocmed(ctx context.Context, Socmed entity.SocialMedia) (entity.SocialMedia, error) {
-	return entity.SocialMedia{}, errors.New("hai")
+func (sc *socmedConnection) UpdateSocmed(ctx context.Context, socmed entity.SocialMedia) (entity.SocialMedia, error) {
+	tx := sc.connection.Save(&socmed)
+	if tx.Error != nil {
+		return entity.SocialMedia{}, tx.Error
+	}
 
+	return socmed, nil
 }
 
-func (sc *socmedConnection) DeleteSocmed(ctx context.Context, SocmedID uint64) error {
-	return errors.New("hai")
+func (sc *socmedConnection) DeleteSocmed(ctx context.Context, id uint) error {
+	tx := sc.connection.Delete(&entity.SocialMedia{}, id)
+	if tx.Error != nil {
+		return tx.Error
+	}
+
+	return nil
 
 }

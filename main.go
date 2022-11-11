@@ -25,24 +25,28 @@ func main() {
 		log.Println(err)
 	}
 	var (
-		db              *gorm.DB                   = config.SetupDatabaseConnection()
-		userRepository  repository.UserRepository  = repository.NewUserRepository(db)
-		photoRepository repository.PhotoRepository = repository.NewPhotoRepository(db)
+		db               *gorm.DB                    = config.SetupDatabaseConnection()
+		userRepository   repository.UserRepository   = repository.NewUserRepository(db)
+		photoRepository  repository.PhotoRepository  = repository.NewPhotoRepository(db)
+		socmedRepository repository.SocmedRepository = repository.NewSocmedRepository(db)
 
-		jwtService   service.JWTService   = service.NewJWTService()
-		userService  service.UserService  = service.NewUserService(userRepository)
-		authService  service.AuthService  = service.NewAuthService(userRepository)
-		photoService service.PhotoService = service.NewPhotoService(photoRepository)
+		jwtService    service.JWTService    = service.NewJWTService()
+		userService   service.UserService   = service.NewUserService(userRepository)
+		authService   service.AuthService   = service.NewAuthService(userRepository)
+		photoService  service.PhotoService  = service.NewPhotoService(photoRepository)
+		socmedService service.SocmedService = service.NewSocmedService(socmedRepository, userRepository)
 
-		authController  controller.AuthController  = controller.NewAuthController(userService, authService, jwtService)
-		photoController controller.PhotoController = controller.NewPhotoController(photoService, jwtService)
+		authController   controller.AuthController   = controller.NewAuthController(userService, authService, jwtService)
+		photoController  controller.PhotoController  = controller.NewPhotoController(photoService, jwtService)
+		socmedController controller.SocmedController = controller.NewSocmedController(userService, socmedService, jwtService)
 	)
 
 	defer config.CloseDatabaseConnection(db)
-	gin.SetMode(gin.ReleaseMode)
+	// gin.SetMode(gin.ReleaseMode)
 	server := gin.Default()
 
 	routes.AuthRoutes(server, authController)
+	routes.SocMedRoutes(server, socmedController, jwtService)
 	routes.PhotoRoutes(server, photoController, photoService, jwtService)
 	// routes.ProductRoutes(server, productController, jwtService, productService)
 	port := os.Getenv("PORT")

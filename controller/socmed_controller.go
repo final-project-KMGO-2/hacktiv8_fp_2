@@ -39,7 +39,6 @@ func (sc *socmedController) PostSocmed(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
-
 	fmt.Print("ini bind -> ")
 	fmt.Printf("%+v\n", socmedDTO)
 

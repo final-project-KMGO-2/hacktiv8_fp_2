@@ -54,3 +54,26 @@ func CommentAuthorization(jwtService service.JWTService, commentService service.
 		ctx.Next()
 	}
 }
+
+func SocmedAuthorization(jwtService service.JWTService, socmedService service.SocmedService) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		socmedID, _ := strconv.ParseUint(ctx.Param("socialMediaId"), 10, 64)
+
+		socmed, err := socmedService.GetSocmedByID(ctx.Request.Context(), uint64(socmedID))
+		if err != nil {
+			response := common.BuildErrorResponse("Failed to process request", "Social media does not exist", nil)
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
+			return
+		}
+		token := ctx.MustGet("token").(string)
+		userID, _ := jwtService.GetUserIDByToken(token)
+
+		if socmed.UserID != uint64(userID) {
+			response := common.BuildErrorResponse("Failed to process request", "You are not authorized to access this data", nil)
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
+			return
+		}
+		ctx.Set("socmedID", uint64(socmedID))
+		ctx.Next()
+	}
+}

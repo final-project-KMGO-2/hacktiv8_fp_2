@@ -57,7 +57,11 @@ func (c *commentController) CreateComment(ctx *gin.Context) {
 
 // GetComment implements CommentController
 func (c *commentController) GetComment(ctx *gin.Context) {
-	result, err := c.commentService.GetComment(ctx.Request.Context())
+
+	token := ctx.MustGet("token").(string)
+	userID, _ := c.jwtService.GetUserIDByToken(token)
+
+	result, err := c.commentService.GetComment(ctx.Request.Context(), userID)
 	if err != nil {
 		response := common.BuildErrorResponse("Failed to get comment", err.Error(), common.EmptyObj{})
 		ctx.JSON(http.StatusBadRequest, response)
@@ -117,6 +121,6 @@ func (c *commentController) DeleteCommentByID(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
-	res := common.BuildResponse(true, "OK", common.EmptyObj{})
+	res := common.BuildResponse(true, "Your comment has been successfully deleted", common.EmptyObj{})
 	ctx.JSON(http.StatusOK, res)
 }

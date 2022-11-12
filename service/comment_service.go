@@ -11,7 +11,7 @@ import (
 
 type CommentService interface {
 	CreateComment(ctx context.Context, commentDTO dto.CommentCreateDTO) (entity.Comment, error)
-	GetComment(ctx context.Context) ([]entity.Comment, error)
+	GetComment(ctx context.Context, userID uint64) ([]entity.Comment, error)
 	GetCommentByID(ctx context.Context, commentID uint64) (entity.Comment, error)
 	UpdateCommentByID(ctx context.Context, commentID uint64, commentDTO dto.CommentUpdateDTO) (entity.Comment, error)
 	DeleteCommentByID(ctx context.Context, commentID uint64) error
@@ -42,8 +42,8 @@ func (s *commentService) CreateComment(ctx context.Context, commentDTO dto.Comme
 	return res, nil
 }
 
-func (s *commentService) GetComment(ctx context.Context) ([]entity.Comment, error) {
-	res, err := s.CommentRepository.GetComment(ctx)
+func (s *commentService) GetComment(ctx context.Context, userID uint64) ([]entity.Comment, error) {
+	res, err := s.CommentRepository.GetComment(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -61,7 +61,12 @@ func (s *commentService) GetCommentByID(ctx context.Context, commentID uint64) (
 }
 
 func (s *commentService) UpdateCommentByID(ctx context.Context, commentID uint64, commentDTO dto.CommentUpdateDTO) (entity.Comment, error) {
-	res, err := s.CommentRepository.UpdateCommentByID(ctx, commentID)
+	comment := entity.Comment{}
+	err := smapping.FillStruct(&comment, smapping.MapFields(&commentDTO))
+	if err != nil {
+		return comment, err
+	}
+	res, err := s.CommentRepository.UpdateCommentByID(ctx, comment)
 	if err != nil {
 		return entity.Comment{}, err
 	}

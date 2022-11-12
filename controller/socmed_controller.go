@@ -108,7 +108,7 @@ func (sc *socmedController) UpdateSocmedById(ctx *gin.Context) {
 }
 
 func (sc *socmedController) DeleteSocmedById(ctx *gin.Context) {
-	id := ctx.MustGet("socialMediaId").(uint)
+	id := ctx.MustGet("socialMediaId").(uint64)
 	err := sc.socmedService.DeleteSocmed(ctx.Request.Context(), id)
 	if err != nil {
 		response := common.BuildErrorResponse("Something went wrong, failed to delete the social media", err.Error(), common.EmptyObj{})

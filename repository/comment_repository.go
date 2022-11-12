@@ -9,9 +9,9 @@ import (
 
 type CommentRepository interface {
 	CreateComment(ctx context.Context, comment entity.Comment) (entity.Comment, error)
-	GetComment(ctx context.Context) ([]entity.Comment, error)
+	GetComment(ctx context.Context, userID uint64) ([]entity.Comment, error)
 	GetCommentByID(ctx context.Context, commentID uint64) (entity.Comment, error)
-	UpdateCommentByID(ctx context.Context, commentID uint64) (entity.Comment, error)
+	UpdateCommentByID(ctx context.Context, comment entity.Comment) (entity.Comment, error)
 	DeleteCommentByID(ctx context.Context, commentID uint64) error
 }
 
@@ -35,9 +35,9 @@ func (db *CommentConnection) CreateComment(ctx context.Context, comment entity.C
 }
 
 // GetComment implements CommentRepository
-func (db *CommentConnection) GetComment(ctx context.Context) ([]entity.Comment, error) {
+func (db *CommentConnection) GetComment(ctx context.Context, userID uint64) ([]entity.Comment, error) {
 	var comment []entity.Comment
-	tx := db.connection.Find(&comment)
+	tx := db.connection.Preload("User").Preload("Photo").Where(("user_id = ?"), userID).Find(&comment)
 	if tx.Error != nil {
 		return []entity.Comment{}, tx.Error
 	}
@@ -57,9 +57,8 @@ func (db *CommentConnection) GetCommentByID(ctx context.Context, commentID uint6
 }
 
 // UpdateCommentByID implements CommentRepository
-func (db *CommentConnection) UpdateCommentByID(ctx context.Context, commentID uint64) (entity.Comment, error) {
-	var comment entity.Comment
-	tx := db.connection.Where(("id = ?"), commentID).Take(&comment)
+func (db *CommentConnection) UpdateCommentByID(ctx context.Context, comment entity.Comment) (entity.Comment, error) {
+	tx := db.connection.Model(&entity.Comment{}).Where(("id = ?"), comment.ID).Update("message", comment.Message)
 	if tx.Error != nil {
 		return entity.Comment{}, tx.Error
 	}

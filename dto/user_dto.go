@@ -15,7 +15,7 @@ type UserRegisterDTO struct {
 }
 
 type UserUpdateDTO struct {
-	ID       uint64 `json:"id" binding:"required"`
+	ID       uint64 `json:"id"`
 	Username string `json:"username" binding:"required"`
 	Email    string `json:"email" binding:"required"`
 	Password string `json:"password" binding:"required"`

@@ -1,7 +1,6 @@
 package controller
 
 import (
-
 	"hacktiv8_fp_2/common"
 	"hacktiv8_fp_2/dto"
 	"hacktiv8_fp_2/service"
@@ -11,26 +10,28 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type AuthController interface {
+type UserController interface {
 	Register(ctx *gin.Context)
 	Login(ctx *gin.Context)
+	UpdateUser(ctx *gin.Context)
+	DeleteUser(ctx *gin.Context)
 }
 
-type authController struct {
+type userController struct {
 	userService service.UserService
 	authService service.AuthService
 	jwtService  service.JWTService
 }
 
-func NewAuthController(us service.UserService, as service.AuthService, js service.JWTService) AuthController {
-	return &authController{
+func NewUserController(us service.UserService, as service.AuthService, js service.JWTService) UserController {
+	return &userController{
 		userService: us,
 		authService: as,
 		jwtService:  js,
 	}
 }
 
-func (c *authController) Register(ctx *gin.Context) {
+func (c *userController) Register(ctx *gin.Context) {
 	var registerDTO dto.UserRegisterDTO
 	errDTO := ctx.ShouldBind(&registerDTO)
 
@@ -59,7 +60,7 @@ func (c *authController) Register(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, response)
 }
 
-func (c *authController) Login(ctx *gin.Context) {
+func (c *userController) Login(ctx *gin.Context) {
 	var loginDTO dto.UserLoginDTO
 	if errDTO := ctx.ShouldBind(&loginDTO); errDTO != nil {
 		response := common.BuildErrorResponse("Failed to process request", errDTO.Error(), common.EmptyObj{})
@@ -84,4 +85,42 @@ func (c *authController) Login(ctx *gin.Context) {
 	generatedToken := c.jwtService.GenerateToken(userId)
 	response := common.BuildResponse(true, "OK", generatedToken)
 	ctx.JSON(http.StatusOK, response)
+}
+
+func (c *userController) UpdateUser(ctx *gin.Context) {
+	var userDTO dto.UserUpdateDTO
+	errDTO := ctx.ShouldBind(&userDTO)
+
+	if errDTO != nil {
+		response := common.BuildErrorResponse("Failed to process request", errDTO.Error(), common.EmptyObj{})
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+		return
+	}
+
+	token := ctx.MustGet("token").(string)
+	userID, _ := c.jwtService.GetUserIDByToken(token)
+	userDTO.ID = uint64(userID)
+	result, err := c.userService.UpdateUser(ctx.Request.Context(), userDTO)
+	if err != nil {
+		res := common.BuildErrorResponse("Failed to update user", err.Error(), common.EmptyObj{})
+		ctx.JSON(http.StatusBadRequest, res)
+		return
+	}
+
+	res := common.BuildResponse(true, "OK", result)
+	ctx.JSON(http.StatusOK, res)
+}
+
+func (c *userController) DeleteUser(ctx *gin.Context) {
+	token := ctx.MustGet("token").(string)
+	userID, _ := c.jwtService.GetUserIDByToken(token)
+	err := c.userService.DeleteUser(ctx.Request.Context(), userID)
+	if err != nil {
+		res := common.BuildErrorResponse("Failed to delete user", err.Error(), common.EmptyObj{})
+		ctx.JSON(http.StatusBadRequest, res)
+		return
+	}
+
+	res := common.BuildResponse(true, "Your account has been successfully deleted", common.EmptyObj{})
+	ctx.JSON(http.StatusOK, res)
 }

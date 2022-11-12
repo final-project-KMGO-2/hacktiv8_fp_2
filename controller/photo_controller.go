@@ -109,11 +109,11 @@ func (c *photoController) DeletePhoto(ctx *gin.Context) {
 	photoID := ctx.MustGet("photoID").(uint64)
 	err := c.photoService.DeletePhoto(ctx.Request.Context(), photoID)
 	if err != nil {
-		res := common.BuildErrorResponse("Failed to delete product", err.Error(), common.EmptyObj{})
+		res := common.BuildErrorResponse("Failed to delete photo", err.Error(), common.EmptyObj{})
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
 
-	res := common.BuildResponse(true, "OK", common.EmptyObj{})
+	res := common.BuildResponse(true, "Your photo has been successfully deleted", common.EmptyObj{})
 	ctx.JSON(http.StatusOK, res)
 }

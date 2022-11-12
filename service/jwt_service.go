@@ -12,7 +12,7 @@ import (
 type JWTService interface {
 	GenerateToken(userID string) string
 	ValidateToken(token string) (*jwt.Token, error)
-	GetUserIDByToken(token string) (uint, error)
+	GetUserIDByToken(token string) (uint64, error)
 }
 
 type jwtCustomClaim struct {
@@ -44,7 +44,7 @@ func (j *jwtService) GenerateToken(UserID string) string {
 	claims := &jwtCustomClaim{
 		UserID,
 		jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Minute * 15)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Minute * 120)),
 			Issuer:    j.issuer,
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 		},
@@ -66,7 +66,7 @@ func (j *jwtService) ValidateToken(token string) (*jwt.Token, error) {
 	})
 }
 
-func (j *jwtService) GetUserIDByToken(token string) (uint, error) {
+func (j *jwtService) GetUserIDByToken(token string) (uint64, error) {
 	t_Token, err := j.ValidateToken(token)
 	if err != nil {
 		return 0, err
@@ -76,5 +76,5 @@ func (j *jwtService) GetUserIDByToken(token string) (uint, error) {
 	id := fmt.Sprintf("%v", claims["user_id"])
 	fmt.Println("id token -> ", id)
 	idUint, _ := strconv.ParseUint(id, 10, 64)
-	return uint(idUint), nil
+	return uint64(idUint), nil
 }

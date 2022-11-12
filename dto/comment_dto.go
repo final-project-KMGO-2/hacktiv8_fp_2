@@ -3,7 +3,7 @@ package dto
 type CommentCreateDTO struct {
 	UserID  uint64 `json:"user_id"`
 	PhotoID uint64 `json:"photo_id"`
-	Message string `json:"message"`
+	Message string `json:"message" binding:"required"`
 }
 
 type CommentUpdateDTO struct {

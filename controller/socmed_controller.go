@@ -95,7 +95,10 @@ func (sc *socmedController) UpdateSocmedById(ctx *gin.Context) {
 		return
 	}
 
-	data, err := sc.socmedService.UpdateSocmed(ctx, userId, socmedUpdateDto)
+	socmedUpdateDto.UserID = uint64(userId)
+	socmedUpdateDto.ID = ctx.MustGet("socmedID").(uint64)
+
+	data, err := sc.socmedService.UpdateSocmed(ctx, socmedUpdateDto)
 
 	if err != nil {
 		response := common.BuildErrorResponse("Something went wrong, failed to update the social media", err.Error(), common.EmptyObj{})
@@ -108,13 +111,13 @@ func (sc *socmedController) UpdateSocmedById(ctx *gin.Context) {
 }
 
 func (sc *socmedController) DeleteSocmedById(ctx *gin.Context) {
-	id := ctx.MustGet("socialMediaId").(uint64)
+	id := ctx.MustGet("socmedID").(uint64)
 	err := sc.socmedService.DeleteSocmed(ctx.Request.Context(), id)
 	if err != nil {
 		response := common.BuildErrorResponse("Something went wrong, failed to delete the social media", err.Error(), common.EmptyObj{})
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
-	response := common.BuildResponse(true, "OK", common.EmptyObj{})
+	response := common.BuildResponse(true, "Your social media has been successfully deleted", common.EmptyObj{})
 	ctx.JSON(http.StatusOK, response)
 }

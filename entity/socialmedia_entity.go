@@ -5,5 +5,6 @@ type SocialMedia struct {
 	Name           string `json:"name"`
 	SocialMediaURL string `json:"social_media_url"`
 	UserID         uint64 `gorm:"foreignKey" json:"user_id"`
-	User           User   `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"user"`
+	User           *User  `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"user,omitempty"`
+	BaseModel
 }

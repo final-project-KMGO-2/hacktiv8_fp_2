@@ -39,7 +39,7 @@ func (sc *socmedConnection) CreateSocmed(ctx context.Context, socmed entity.Soci
 
 func (sc *socmedConnection) GetSocmeds(ctx context.Context) ([]entity.SocialMedia, error) {
 	var socmed []entity.SocialMedia
-	tx := sc.connection.Find(&socmed)
+	tx := sc.connection.Preload("User").Find(&socmed)
 	if tx.Error != nil {
 		return nil, tx.Error
 	}

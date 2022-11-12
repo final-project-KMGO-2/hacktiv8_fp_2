@@ -9,6 +9,7 @@ import (
 type AuthService interface {
 	VerifyCredential(ctx context.Context, email string, password string) (bool, error)
 	CheckEmailDuplicate(ctx context.Context, email string) (bool, error)
+	CheckUsernameDuplicate(ctx context.Context, username string) (bool, error)
 }
 
 type authService struct {
@@ -45,6 +46,18 @@ func (s *authService) CheckEmailDuplicate(ctx context.Context, email string) (bo
 	}
 
 	if res.Email == "" {
+		return false, nil
+	}
+	return true, nil
+}
+
+func (s *authService) CheckUsernameDuplicate(ctx context.Context, username string) (bool, error) {
+	res, err := s.userRepository.GetUserByUsername(ctx, username)
+	if err != nil {
+		return false, err
+	}
+
+	if res.Username == "" {
 		return false, nil
 	}
 	return true, nil

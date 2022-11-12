@@ -11,6 +11,7 @@ type UserRepository interface {
 	CreateUser(ctx context.Context, user entity.User) (entity.User, error)
 	GetUserByEmail(ctx context.Context, email string) (entity.User, error)
 	GetUserById(ctx context.Context, id uint64) (entity.User, error)
+	GetUserByUsername(ctx context.Context, username string) (entity.User, error)
 	UpdateUser(ctx context.Context, user entity.User) (entity.User, error)
 	DeleteUser(ctx context.Context, userID uint64) error
 }
@@ -45,7 +46,16 @@ func (db *userConnection) GetUserByEmail(ctx context.Context, email string) (ent
 
 func (db *userConnection) GetUserById(ctx context.Context, id uint64) (entity.User, error) {
 	var user entity.User
-	tx := db.connection.Where(("ID = ?"), id).Take(&user)
+	tx := db.connection.Where(("id = ?"), id).Take(&user)
+	if tx.Error != nil {
+		return user, tx.Error
+	}
+	return user, nil
+}
+
+func (db *userConnection) GetUserByUsername(ctx context.Context, username string) (entity.User, error) {
+	var user entity.User
+	tx := db.connection.Where(("username = ?"), username).Take(&user)
 	if tx.Error != nil {
 		return user, tx.Error
 	}

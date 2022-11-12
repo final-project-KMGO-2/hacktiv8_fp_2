@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"hacktiv8_fp_2/common"
 	"hacktiv8_fp_2/dto"
 	"hacktiv8_fp_2/service"
@@ -93,7 +92,7 @@ func (c *photoController) UpdatePhoto(ctx *gin.Context) {
 
 	photoDTO.UserID = uint64(userID)
 	photoDTO.ID = ctx.MustGet("photoID").(uint64)
-	fmt.Println(photoDTO)
+
 	result, err := c.photoService.UpdatePhoto(ctx.Request.Context(), photoDTO)
 	if err != nil {
 		res := common.BuildErrorResponse("Failed to update photo", err.Error(), common.EmptyObj{})

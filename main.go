@@ -52,7 +52,7 @@ func main() {
 	routes.SocMedRoutes(server, socmedController, socmedService, jwtService)
 	routes.PhotoRoutes(server, photoController, photoService, jwtService)
 	routes.CommentRoutes(server, commentController, commentService, jwtService)
-	// routes.ProductRoutes(server, productController, jwtService, productService)
+
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"

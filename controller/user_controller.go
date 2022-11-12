@@ -48,6 +48,13 @@ func (c *userController) Register(ctx *gin.Context) {
 		return
 	}
 
+	isDuplicateUsername, _ := c.authService.CheckUsernameDuplicate(ctx.Request.Context(), registerDTO.Username)
+	if isDuplicateUsername {
+		response := common.BuildErrorResponse("Failed to process request", "Duplicate Username", common.EmptyObj{})
+		ctx.JSON(http.StatusConflict, response)
+		return
+	}
+
 	createdUser, err := c.userService.CreateUser(ctx.Request.Context(), registerDTO)
 	if err != nil {
 		response := common.BuildErrorResponse("Failed to process request", err.Error(), common.EmptyObj{})

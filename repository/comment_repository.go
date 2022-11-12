@@ -37,7 +37,7 @@ func (db *CommentConnection) CreateComment(ctx context.Context, comment entity.C
 // GetComment implements CommentRepository
 func (db *CommentConnection) GetComment(ctx context.Context, userID uint64) ([]entity.Comment, error) {
 	var comment []entity.Comment
-	tx := db.connection.Preload("User").Preload("Photo").Where(("user_id = ?"), userID).Find(&comment)
+	tx := db.connection.Debug().Where(("user_id = ?"), userID).Preload("User").Preload("Photo").Find(&comment)
 	if tx.Error != nil {
 		return []entity.Comment{}, tx.Error
 	}

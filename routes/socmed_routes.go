@@ -9,9 +9,9 @@ import (
 )
 
 func SocMedRoutes(router *gin.Engine, socmedController controller.SocmedController, socmedService service.SocmedService, jwtService service.JWTService) {
-	smRoutes := router.Group("/socialmedias")
+	smRoutes := router.Group("/socialmedias", middleware.Authenticate(jwtService))
 	{
-		smRoutes.POST("", middleware.Authenticate(jwtService), socmedController.PostSocmed)
+		smRoutes.POST("", socmedController.PostSocmed)
 		smRoutes.GET("", socmedController.GetSocmed)
 		smRoutes.PUT("/:socialMediaId", middleware.SocmedAuthorization(jwtService, socmedService), socmedController.UpdateSocmedById)
 		smRoutes.DELETE("/:socialMediaId", middleware.SocmedAuthorization(jwtService, socmedService), socmedController.DeleteSocmedById)

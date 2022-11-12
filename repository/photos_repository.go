@@ -35,7 +35,7 @@ func (db *photoConnection) CreatePhoto(ctx context.Context, photo entity.Photo) 
 
 func (db *photoConnection) GetPhotos(ctx context.Context) ([]entity.Photo, error) {
 	var photos []entity.Photo
-	tx := db.connection.Find(&photos)
+	tx := db.connection.Preload("User").Find(&photos)
 	if tx.Error != nil {
 		return []entity.Photo{}, tx.Error
 	}

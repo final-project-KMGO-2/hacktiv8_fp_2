@@ -14,7 +14,7 @@ type SocmedService interface {
 	GetSocmedByID(ctx context.Context, socmedID uint64) (entity.SocialMedia, error)
 	AddNewSocmed(ctx context.Context, socmedDTO dto.SocialMediaCreateDTO) (entity.SocialMedia, error)
 	DeleteSocmed(ctx context.Context, id uint64) error
-	UpdateSocmed(ctx context.Context, id uint64, socmedUpdateDTO dto.SocialMediaUpdateDTO) (entity.SocialMedia, error)
+	UpdateSocmed(ctx context.Context, socmedUpdateDTO dto.SocialMediaUpdateDTO) (entity.SocialMedia, error)
 }
 
 type socmedService struct {
@@ -69,14 +69,14 @@ func (sr *socmedService) DeleteSocmed(ctx context.Context, id uint64) error {
 	}
 	return nil
 }
-func (sr *socmedService) UpdateSocmed(ctx context.Context, id uint64, socmedUpdateDTO dto.SocialMediaUpdateDTO) (entity.SocialMedia, error) {
+func (sr *socmedService) UpdateSocmed(ctx context.Context, socmedUpdateDTO dto.SocialMediaUpdateDTO) (entity.SocialMedia, error) {
 	socmed := entity.SocialMedia{}
 	err := smapping.FillStruct(&socmed, smapping.MapFields(&socmedUpdateDTO))
 	if err != nil {
 		return entity.SocialMedia{}, err
 	}
 
-	resp, err := sr.socmedRepository.UpdateSocmed(ctx, entity.SocialMedia{})
+	resp, err := sr.socmedRepository.UpdateSocmed(ctx, socmed)
 	if err != nil {
 		return entity.SocialMedia{}, err
 	}

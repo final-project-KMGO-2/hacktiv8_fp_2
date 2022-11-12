@@ -6,6 +6,6 @@ type Photo struct {
 	Caption  string `json:"caption"`
 	PhotoUrl string `json:"photo_url"`
 	UserID   uint64 `gorm:"foreignKey" json:"user_id"`
-	User     User   `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"-"`
+	User     *User  `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;" json:"user,omitempty"`
 	BaseModel
 }

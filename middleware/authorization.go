@@ -31,3 +31,26 @@ func PhotoAuthorization(jwtService service.JWTService, photoService service.Phot
 		ctx.Next()
 	}
 }
+
+func CommentAuthorization(jwtService service.JWTService, commentService service.CommentService) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		commentID, _ := strconv.ParseUint(ctx.Param("commentID"), 10, 64)
+
+		comment, err := commentService.GetCommentByID(ctx.Request.Context(), uint64(commentID))
+		if err != nil {
+			response := common.BuildErrorResponse("Failed to process request", "Comment does not exist", nil)
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
+			return
+		}
+		token := ctx.MustGet("token").(string)
+		userID, _ := jwtService.GetUserIDByToken(token)
+
+		if comment.UserID != uint64(userID) {
+			response := common.BuildErrorResponse("Failed to process request", "You are not authorized to access this data", nil)
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
+			return
+		}
+		ctx.Set("commentID", uint64(commentID))
+		ctx.Next()
+	}
+}

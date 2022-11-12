@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"hacktiv8_fp_2/dto"
 	"hacktiv8_fp_2/entity"
 	"hacktiv8_fp_2/repository"
 
@@ -12,9 +11,9 @@ import (
 type SocmedService interface {
 	GetSocmedInfo(ctx context.Context) ([]entity.SocialMedia, error)
 	GetSocmedByID(ctx context.Context, socmedID uint64) (entity.SocialMedia, error)
-	AddNewSocmed(ctx context.Context, socmedDTO dto.SocialMediaCreateDTO) (entity.SocialMedia, error)
+	AddNewSocmed(ctx context.Context, socmedCreate entity.SocialMediaCreate) (entity.SocialMedia, error)
 	DeleteSocmed(ctx context.Context, id uint64) error
-	UpdateSocmed(ctx context.Context, socmedUpdateDTO dto.SocialMediaUpdateDTO) (entity.SocialMedia, error)
+	UpdateSocmed(ctx context.Context, socmedUpdate entity.SocialMediaUpdate) (entity.SocialMedia, error)
 }
 
 type socmedService struct {
@@ -47,9 +46,9 @@ func (sr *socmedService) GetSocmedByID(ctx context.Context, socmedID uint64) (en
 	return res, nil
 }
 
-func (sr *socmedService) AddNewSocmed(ctx context.Context, socmedDTO dto.SocialMediaCreateDTO) (entity.SocialMedia, error) {
+func (sr *socmedService) AddNewSocmed(ctx context.Context, socmedCreate entity.SocialMediaCreate) (entity.SocialMedia, error) {
 	socmed := entity.SocialMedia{}
-	err := smapping.FillStruct(&socmed, smapping.MapFields(&socmedDTO))
+	err := smapping.FillStruct(&socmed, smapping.MapFields(&socmedCreate))
 	if err != nil {
 		return entity.SocialMedia{}, err
 	}
@@ -69,9 +68,9 @@ func (sr *socmedService) DeleteSocmed(ctx context.Context, id uint64) error {
 	}
 	return nil
 }
-func (sr *socmedService) UpdateSocmed(ctx context.Context, socmedUpdateDTO dto.SocialMediaUpdateDTO) (entity.SocialMedia, error) {
+func (sr *socmedService) UpdateSocmed(ctx context.Context, socmedUpdate entity.SocialMediaUpdate) (entity.SocialMedia, error) {
 	socmed := entity.SocialMedia{}
-	err := smapping.FillStruct(&socmed, smapping.MapFields(&socmedUpdateDTO))
+	err := smapping.FillStruct(&socmed, smapping.MapFields(&socmedUpdate))
 	if err != nil {
 		return entity.SocialMedia{}, err
 	}

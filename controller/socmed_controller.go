@@ -1,9 +1,8 @@
 package controller
 
 import (
-	"fmt"
 	"hacktiv8_fp_2/common"
-	"hacktiv8_fp_2/dto"
+	"hacktiv8_fp_2/entity"
 	"hacktiv8_fp_2/service"
 	"net/http"
 
@@ -32,22 +31,17 @@ func NewSocmedController(us service.UserService, ss service.SocmedService, js se
 }
 
 func (sc *socmedController) PostSocmed(ctx *gin.Context) {
-	var socmedDTO dto.SocialMediaCreateDTO
-	err := ctx.ShouldBind(&socmedDTO)
+	var socmedCreate entity.SocialMediaCreate
+	err := ctx.ShouldBind(&socmedCreate)
 	if err != nil {
 		response := common.BuildErrorResponse("invalid input", err.Error(), nil)
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
 
-	fmt.Print("ini bind -> ")
-	fmt.Printf("%+v\n", socmedDTO)
-
 	token := ctx.MustGet("token").(string)
 	userId, err := sc.jwtService.GetUserIDByToken(token)
-	fmt.Println("User id -> ", userId)
-	socmedDTO.UserID = uint64(userId)
-	fmt.Println("id dto -> ", socmedDTO.UserID)
+	socmedCreate.UserID = uint64(userId)
 
 	if err != nil {
 		response := common.BuildErrorResponse("invalid token", err.Error(), nil)
@@ -55,7 +49,7 @@ func (sc *socmedController) PostSocmed(ctx *gin.Context) {
 		return
 	}
 
-	result, err := sc.socmedService.AddNewSocmed(ctx.Request.Context(), socmedDTO) // implement func ...
+	result, err := sc.socmedService.AddNewSocmed(ctx.Request.Context(), socmedCreate) // implement func ...
 
 	if err != nil {
 		response := common.BuildErrorResponse("invalid input", err.Error(), nil)
@@ -79,8 +73,8 @@ func (sc *socmedController) GetSocmed(ctx *gin.Context) {
 }
 func (sc *socmedController) UpdateSocmedById(ctx *gin.Context) {
 
-	var socmedUpdateDto dto.SocialMediaUpdateDTO
-	err := ctx.ShouldBind(&socmedUpdateDto)
+	var socmedUpdate entity.SocialMediaUpdate
+	err := ctx.ShouldBind(&socmedUpdate)
 	if err != nil {
 		response := common.BuildErrorResponse("Something went wrong, failed to update the social media", err.Error(), common.EmptyObj{})
 		ctx.JSON(http.StatusBadRequest, response)
@@ -95,10 +89,10 @@ func (sc *socmedController) UpdateSocmedById(ctx *gin.Context) {
 		return
 	}
 
-	socmedUpdateDto.UserID = uint64(userId)
-	socmedUpdateDto.ID = ctx.MustGet("socmedID").(uint64)
+	socmedUpdate.UserID = uint64(userId)
+	socmedUpdate.ID = ctx.MustGet("socmedID").(uint64)
 
-	data, err := sc.socmedService.UpdateSocmed(ctx, socmedUpdateDto)
+	data, err := sc.socmedService.UpdateSocmed(ctx, socmedUpdate)
 
 	if err != nil {
 		response := common.BuildErrorResponse("Something went wrong, failed to update the social media", err.Error(), common.EmptyObj{})

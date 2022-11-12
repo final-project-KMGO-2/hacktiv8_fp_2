@@ -2,7 +2,7 @@ package controller
 
 import (
 	"hacktiv8_fp_2/common"
-	"hacktiv8_fp_2/dto"
+	"hacktiv8_fp_2/entity"
 	"hacktiv8_fp_2/service"
 	"net/http"
 	"strconv"
@@ -32,30 +32,30 @@ func NewUserController(us service.UserService, as service.AuthService, js servic
 }
 
 func (c *userController) Register(ctx *gin.Context) {
-	var registerDTO dto.UserRegisterDTO
-	errDTO := ctx.ShouldBind(&registerDTO)
+	var user entity.UserRegister
+	errBind := ctx.ShouldBind(&user)
 
-	if errDTO != nil {
-		response := common.BuildErrorResponse("Failed to process request", errDTO.Error(), common.EmptyObj{})
+	if errBind != nil {
+		response := common.BuildErrorResponse("Failed to process request", errBind.Error(), common.EmptyObj{})
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
 		return
 	}
 
-	isDuplicateEmail, _ := c.authService.CheckEmailDuplicate(ctx.Request.Context(), registerDTO.Email)
+	isDuplicateEmail, _ := c.authService.CheckEmailDuplicate(ctx.Request.Context(), user.Email)
 	if isDuplicateEmail {
 		response := common.BuildErrorResponse("Failed to process request", "Duplicate Email", common.EmptyObj{})
 		ctx.JSON(http.StatusConflict, response)
 		return
 	}
 
-	isDuplicateUsername, _ := c.authService.CheckUsernameDuplicate(ctx.Request.Context(), registerDTO.Username)
+	isDuplicateUsername, _ := c.authService.CheckUsernameDuplicate(ctx.Request.Context(), user.Username)
 	if isDuplicateUsername {
 		response := common.BuildErrorResponse("Failed to process request", "Duplicate Username", common.EmptyObj{})
 		ctx.JSON(http.StatusConflict, response)
 		return
 	}
 
-	createdUser, err := c.userService.CreateUser(ctx.Request.Context(), registerDTO)
+	createdUser, err := c.userService.CreateUser(ctx.Request.Context(), user)
 	if err != nil {
 		response := common.BuildErrorResponse("Failed to process request", err.Error(), common.EmptyObj{})
 		ctx.JSON(http.StatusConflict, response)
@@ -68,21 +68,21 @@ func (c *userController) Register(ctx *gin.Context) {
 }
 
 func (c *userController) Login(ctx *gin.Context) {
-	var loginDTO dto.UserLoginDTO
-	if errDTO := ctx.ShouldBind(&loginDTO); errDTO != nil {
-		response := common.BuildErrorResponse("Failed to process request", errDTO.Error(), common.EmptyObj{})
+	var userLogin entity.UserLogin
+	if errBind := ctx.ShouldBind(&userLogin); errBind != nil {
+		response := common.BuildErrorResponse("Failed to process request", errBind.Error(), common.EmptyObj{})
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
 		return
 	}
 
-	authResult, _ := c.authService.VerifyCredential(ctx.Request.Context(), loginDTO.Email, loginDTO.Password)
+	authResult, _ := c.authService.VerifyCredential(ctx.Request.Context(), userLogin.Email, userLogin.Password)
 	if !authResult {
 		response := common.BuildErrorResponse("Error Logging in", "Invalid Credentials", nil)
 		ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
 		return
 	}
 
-	user, err := c.userService.GetUserByEmail(ctx.Request.Context(), loginDTO.Email)
+	user, err := c.userService.GetUserByEmail(ctx.Request.Context(), userLogin.Email)
 	if err != nil {
 		response := common.BuildErrorResponse("Failed to process request", err.Error(), common.EmptyObj{})
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
@@ -95,19 +95,19 @@ func (c *userController) Login(ctx *gin.Context) {
 }
 
 func (c *userController) UpdateUser(ctx *gin.Context) {
-	var userDTO dto.UserUpdateDTO
-	errDTO := ctx.ShouldBind(&userDTO)
+	var userUpdate entity.UserUpdate
+	errBind := ctx.ShouldBind(&userUpdate)
 
-	if errDTO != nil {
-		response := common.BuildErrorResponse("Failed to process request", errDTO.Error(), common.EmptyObj{})
+	if errBind != nil {
+		response := common.BuildErrorResponse("Failed to process request", errBind.Error(), common.EmptyObj{})
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
 		return
 	}
 
 	token := ctx.MustGet("token").(string)
 	userID, _ := c.jwtService.GetUserIDByToken(token)
-	userDTO.ID = uint64(userID)
-	result, err := c.userService.UpdateUser(ctx.Request.Context(), userDTO)
+	userUpdate.ID = uint64(userID)
+	result, err := c.userService.UpdateUser(ctx.Request.Context(), userUpdate)
 	if err != nil {
 		res := common.BuildErrorResponse("Failed to update user", err.Error(), common.EmptyObj{})
 		ctx.JSON(http.StatusBadRequest, res)

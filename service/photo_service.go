@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"hacktiv8_fp_2/dto"
 	"hacktiv8_fp_2/entity"
 	"hacktiv8_fp_2/repository"
 
@@ -10,10 +9,10 @@ import (
 )
 
 type PhotoService interface {
-	CreatePhoto(ctx context.Context, photoDTO dto.PhotoCreateDTO) (entity.Photo, error)
+	CreatePhoto(ctx context.Context, photoCreate entity.PhotoCreate) (entity.Photo, error)
 	GetPhotos(ctx context.Context) ([]entity.Photo, error)
 	GetPhotoByID(ctx context.Context, photoID uint64) (entity.Photo, error)
-	UpdatePhoto(ctx context.Context, photoDTO dto.PhotoUpdateDTO) (entity.Photo, error)
+	UpdatePhoto(ctx context.Context, photoUpdate entity.PhotoUpdate) (entity.Photo, error)
 	DeletePhoto(ctx context.Context, photoID uint64) error
 }
 
@@ -27,9 +26,9 @@ func NewPhotoService(pr repository.PhotoRepository) PhotoService {
 	}
 }
 
-func (s *photoService) CreatePhoto(ctx context.Context, photoDTO dto.PhotoCreateDTO) (entity.Photo, error) {
+func (s *photoService) CreatePhoto(ctx context.Context, photoCreate entity.PhotoCreate) (entity.Photo, error) {
 	photo := entity.Photo{}
-	err := smapping.FillStruct(&photo, smapping.MapFields(&photoDTO))
+	err := smapping.FillStruct(&photo, smapping.MapFields(&photoCreate))
 	if err != nil {
 		return photo, err
 	}
@@ -60,9 +59,9 @@ func (s *photoService) GetPhotoByID(ctx context.Context, photoID uint64) (entity
 	return res, nil
 }
 
-func (s *photoService) UpdatePhoto(ctx context.Context, photoDTO dto.PhotoUpdateDTO) (entity.Photo, error) {
+func (s *photoService) UpdatePhoto(ctx context.Context, photoUpdate entity.PhotoUpdate) (entity.Photo, error) {
 	photo := entity.Photo{}
-	err := smapping.FillStruct(&photo, smapping.MapFields(&photoDTO))
+	err := smapping.FillStruct(&photo, smapping.MapFields(&photoUpdate))
 	if err != nil {
 		return photo, err
 	}

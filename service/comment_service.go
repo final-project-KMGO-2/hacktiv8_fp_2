@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"hacktiv8_fp_2/dto"
 	"hacktiv8_fp_2/entity"
 	"hacktiv8_fp_2/repository"
 
@@ -10,10 +9,10 @@ import (
 )
 
 type CommentService interface {
-	CreateComment(ctx context.Context, commentDTO dto.CommentCreateDTO) (entity.Comment, error)
+	CreateComment(ctx context.Context, commentCreate entity.CommentCreate) (entity.Comment, error)
 	GetComment(ctx context.Context, userID uint64) ([]entity.Comment, error)
 	GetCommentByID(ctx context.Context, commentID uint64) (entity.Comment, error)
-	UpdateCommentByID(ctx context.Context, commentID uint64, commentDTO dto.CommentUpdateDTO) (entity.Comment, error)
+	UpdateCommentByID(ctx context.Context, commentID uint64, commentUpdate entity.CommentUpdate) (entity.Comment, error)
 	DeleteCommentByID(ctx context.Context, commentID uint64) error
 }
 
@@ -27,9 +26,9 @@ func NewCommentService(cr repository.CommentRepository) CommentService {
 	}
 }
 
-func (s *commentService) CreateComment(ctx context.Context, commentDTO dto.CommentCreateDTO) (entity.Comment, error) {
+func (s *commentService) CreateComment(ctx context.Context, commentCreate entity.CommentCreate) (entity.Comment, error) {
 	comment := entity.Comment{}
-	err := smapping.FillStruct(&comment, smapping.MapFields(&commentDTO))
+	err := smapping.FillStruct(&comment, smapping.MapFields(&commentCreate))
 	if err != nil {
 		return comment, err
 	}
@@ -60,9 +59,9 @@ func (s *commentService) GetCommentByID(ctx context.Context, commentID uint64) (
 	return res, nil
 }
 
-func (s *commentService) UpdateCommentByID(ctx context.Context, commentID uint64, commentDTO dto.CommentUpdateDTO) (entity.Comment, error) {
+func (s *commentService) UpdateCommentByID(ctx context.Context, commentID uint64, commentUpdate entity.CommentUpdate) (entity.Comment, error) {
 	comment := entity.Comment{}
-	err := smapping.FillStruct(&comment, smapping.MapFields(&commentDTO))
+	err := smapping.FillStruct(&comment, smapping.MapFields(&commentUpdate))
 	if err != nil {
 		return comment, err
 	}

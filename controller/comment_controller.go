@@ -1,9 +1,8 @@
 package controller
 
 import (
-	"fmt"
 	"hacktiv8_fp_2/common"
-	"hacktiv8_fp_2/dto"
+	"hacktiv8_fp_2/entity"
 	"hacktiv8_fp_2/service"
 	"net/http"
 	"strconv"
@@ -33,8 +32,8 @@ func NewCommentController(cs service.CommentService, js service.JWTService) Comm
 
 // CreateComment implements CommentController
 func (c *commentController) CreateComment(ctx *gin.Context) {
-	var commentDTO dto.CommentCreateDTO
-	if err := ctx.ShouldBind(&commentDTO); err != nil {
+	var commentCreate entity.CommentCreate
+	if err := ctx.ShouldBind(&commentCreate); err != nil {
 		response := common.BuildErrorResponse("Failed to bind comment request", err.Error(), common.EmptyObj{})
 		ctx.JSON(http.StatusBadRequest, response)
 		return
@@ -43,9 +42,9 @@ func (c *commentController) CreateComment(ctx *gin.Context) {
 	token := ctx.MustGet("token").(string)
 	userID, _ := c.jwtService.GetUserIDByToken(token)
 
-	commentDTO.UserID = uint64(userID)
+	commentCreate.UserID = uint64(userID)
 
-	result, err := c.commentService.CreateComment(ctx.Request.Context(), commentDTO)
+	result, err := c.commentService.CreateComment(ctx.Request.Context(), commentCreate)
 	if err != nil {
 		response := common.BuildErrorResponse("Failed to add comment", err.Error(), common.EmptyObj{})
 		ctx.JSON(http.StatusBadRequest, response)
@@ -88,8 +87,8 @@ func (c *commentController) GetCommentByID(ctx *gin.Context) {
 
 // UpdateCommentByID implements CommentController
 func (c *commentController) UpdateCommentByID(ctx *gin.Context) {
-	var commentDTO dto.CommentUpdateDTO
-	if err := ctx.ShouldBind(&commentDTO); err != nil {
+	var commentUpdate entity.CommentUpdate
+	if err := ctx.ShouldBind(&commentUpdate); err != nil {
 		response := common.BuildErrorResponse("Failed to bind photo request", err.Error(), common.EmptyObj{})
 		ctx.JSON(http.StatusBadRequest, response)
 		return
@@ -98,11 +97,10 @@ func (c *commentController) UpdateCommentByID(ctx *gin.Context) {
 	token := ctx.MustGet("token").(string)
 	userID, _ := c.jwtService.GetUserIDByToken(token)
 
-	commentDTO.UserID = uint64(userID)
-	commentDTO.ID = ctx.MustGet("commentID").(uint64)
-	fmt.Println(commentDTO)
+	commentUpdate.UserID = uint64(userID)
+	commentUpdate.ID = ctx.MustGet("commentID").(uint64)
 
-	result, err := c.commentService.UpdateCommentByID(ctx.Request.Context(), commentDTO.ID, commentDTO)
+	result, err := c.commentService.UpdateCommentByID(ctx.Request.Context(), commentUpdate.ID, commentUpdate)
 	if err != nil {
 		response := common.BuildErrorResponse("Failed to update comment", err.Error(), common.EmptyObj{})
 		ctx.JSON(http.StatusBadRequest, response)

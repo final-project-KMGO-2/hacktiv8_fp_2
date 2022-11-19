@@ -1,9 +1,8 @@
 package controller
 
 import (
-	"fmt"
 	"hacktiv8_fp_2/common"
-	"hacktiv8_fp_2/dto"
+	"hacktiv8_fp_2/entity"
 	"hacktiv8_fp_2/service"
 	"net/http"
 	"strconv"
@@ -32,8 +31,8 @@ func NewPhotoController(ps service.PhotoService, js service.JWTService) PhotoCon
 }
 
 func (c *photoController) CreatePhoto(ctx *gin.Context) {
-	var photoDTO dto.PhotoCreateDTO
-	if err := ctx.ShouldBind(&photoDTO); err != nil {
+	var photo entity.PhotoCreate
+	if err := ctx.ShouldBind(&photo); err != nil {
 		res := common.BuildErrorResponse("Failed to bind photo request", err.Error(), common.EmptyObj{})
 		ctx.JSON(http.StatusBadRequest, res)
 		return
@@ -42,9 +41,9 @@ func (c *photoController) CreatePhoto(ctx *gin.Context) {
 	token := ctx.MustGet("token").(string)
 	userID, _ := c.jwtService.GetUserIDByToken(token)
 
-	photoDTO.UserID = uint64(userID)
+	photo.UserID = uint64(userID)
 
-	result, err := c.photoService.CreatePhoto(ctx.Request.Context(), photoDTO)
+	result, err := c.photoService.CreatePhoto(ctx.Request.Context(), photo)
 	if err != nil {
 		res := common.BuildErrorResponse("Failed to insert photo", err.Error(), common.EmptyObj{})
 		ctx.JSON(http.StatusBadRequest, res)
@@ -81,8 +80,8 @@ func (c *photoController) GetPhotoByID(ctx *gin.Context) {
 }
 
 func (c *photoController) UpdatePhoto(ctx *gin.Context) {
-	var photoDTO dto.PhotoUpdateDTO
-	if err := ctx.ShouldBind(&photoDTO); err != nil {
+	var photo entity.PhotoUpdate
+	if err := ctx.ShouldBind(&photo); err != nil {
 		res := common.BuildErrorResponse("Failed to bind photo request", err.Error(), common.EmptyObj{})
 		ctx.JSON(http.StatusBadRequest, res)
 		return
@@ -91,10 +90,10 @@ func (c *photoController) UpdatePhoto(ctx *gin.Context) {
 	token := ctx.MustGet("token").(string)
 	userID, _ := c.jwtService.GetUserIDByToken(token)
 
-	photoDTO.UserID = uint64(userID)
-	photoDTO.ID = ctx.MustGet("photoID").(uint64)
-	fmt.Println(photoDTO)
-	result, err := c.photoService.UpdatePhoto(ctx.Request.Context(), photoDTO)
+	photo.UserID = uint64(userID)
+	photo.ID = ctx.MustGet("photoID").(uint64)
+
+	result, err := c.photoService.UpdatePhoto(ctx.Request.Context(), photo)
 	if err != nil {
 		res := common.BuildErrorResponse("Failed to update photo", err.Error(), common.EmptyObj{})
 		ctx.JSON(http.StatusBadRequest, res)
@@ -109,11 +108,11 @@ func (c *photoController) DeletePhoto(ctx *gin.Context) {
 	photoID := ctx.MustGet("photoID").(uint64)
 	err := c.photoService.DeletePhoto(ctx.Request.Context(), photoID)
 	if err != nil {
-		res := common.BuildErrorResponse("Failed to delete product", err.Error(), common.EmptyObj{})
+		res := common.BuildErrorResponse("Failed to delete photo", err.Error(), common.EmptyObj{})
 		ctx.JSON(http.StatusBadRequest, res)
 		return
 	}
 
-	res := common.BuildResponse(true, "OK", common.EmptyObj{})
+	res := common.BuildResponse(true, "Your photo has been successfully deleted", common.EmptyObj{})
 	ctx.JSON(http.StatusOK, res)
 }

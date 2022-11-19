@@ -11,8 +11,9 @@ import (
 type SocmedRepository interface {
 	CreateSocmed(ctx context.Context, Socmed entity.SocialMedia) (entity.SocialMedia, error)
 	GetSocmeds(ctx context.Context) ([]entity.SocialMedia, error)
+	GetSocmedByID(ctx context.Context, socmedID uint64) (entity.SocialMedia, error)
 	UpdateSocmed(ctx context.Context, socmed entity.SocialMedia) (entity.SocialMedia, error)
-	DeleteSocmed(ctx context.Context, id uint) error
+	DeleteSocmed(ctx context.Context, id uint64) error
 }
 
 type socmedConnection struct {
@@ -26,7 +27,7 @@ func NewSocmedRepository(db *gorm.DB) SocmedRepository {
 }
 
 func (sc *socmedConnection) CreateSocmed(ctx context.Context, socmed entity.SocialMedia) (entity.SocialMedia, error) {
-	tx := sc.connection.Preload("User").Create(&socmed)
+	tx := sc.connection.Preload("user").Create(&socmed)
 	fmt.Print("socmed repo -> ")
 	fmt.Printf("%+v\n", socmed)
 	if tx.Error != nil {
@@ -38,9 +39,18 @@ func (sc *socmedConnection) CreateSocmed(ctx context.Context, socmed entity.Soci
 
 func (sc *socmedConnection) GetSocmeds(ctx context.Context) ([]entity.SocialMedia, error) {
 	var socmed []entity.SocialMedia
-	tx := sc.connection.Preload("Users").Find(&socmed)
+	tx := sc.connection.Preload("User").Find(&socmed)
 	if tx.Error != nil {
 		return nil, tx.Error
+	}
+	return socmed, nil
+}
+
+func (sc *socmedConnection) GetSocmedByID(ctx context.Context, socmedID uint64) (entity.SocialMedia, error) {
+	var socmed entity.SocialMedia
+	tx := sc.connection.Where(("id = ?"), socmedID).Find(&socmed)
+	if tx.Error != nil {
+		return socmed, tx.Error
 	}
 	return socmed, nil
 }
@@ -54,7 +64,7 @@ func (sc *socmedConnection) UpdateSocmed(ctx context.Context, socmed entity.Soci
 	return socmed, nil
 }
 
-func (sc *socmedConnection) DeleteSocmed(ctx context.Context, id uint) error {
+func (sc *socmedConnection) DeleteSocmed(ctx context.Context, id uint64) error {
 	tx := sc.connection.Delete(&entity.SocialMedia{}, id)
 	if tx.Error != nil {
 		return tx.Error

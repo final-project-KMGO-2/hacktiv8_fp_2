@@ -2,8 +2,6 @@ package service
 
 import (
 	"context"
-	"fmt"
-	"hacktiv8_fp_2/dto"
 	"hacktiv8_fp_2/entity"
 	"hacktiv8_fp_2/repository"
 
@@ -12,9 +10,10 @@ import (
 
 type SocmedService interface {
 	GetSocmedInfo(ctx context.Context) ([]entity.SocialMedia, error)
-	AddNewSocmed(ctx context.Context, socmedDTO dto.SocialMediaCreateDTO) (entity.SocialMedia, error)
-	DeleteSocmed(ctx context.Context, id uint) error
-	UpdateSocmed(ctx context.Context, id uint, socmedUpdateDTO dto.SocialMediaUpdateDTO) (entity.SocialMedia, error)
+	GetSocmedByID(ctx context.Context, socmedID uint64) (entity.SocialMedia, error)
+	AddNewSocmed(ctx context.Context, socmedCreate entity.SocialMediaCreate) (entity.SocialMedia, error)
+	DeleteSocmed(ctx context.Context, id uint64) error
+	UpdateSocmed(ctx context.Context, socmedUpdate entity.SocialMediaUpdate) (entity.SocialMedia, error)
 }
 
 type socmedService struct {
@@ -37,17 +36,22 @@ func (sr *socmedService) GetSocmedInfo(ctx context.Context) ([]entity.SocialMedi
 	}
 
 	return res, nil
-
 }
-func (sr *socmedService) AddNewSocmed(ctx context.Context, socmedDTO dto.SocialMediaCreateDTO) (entity.SocialMedia, error) {
-	socmed := entity.SocialMedia{}
-	err := smapping.FillStruct(&socmed, smapping.MapFields(&socmedDTO))
+
+func (sr *socmedService) GetSocmedByID(ctx context.Context, socmedID uint64) (entity.SocialMedia, error) {
+	res, err := sr.socmedRepository.GetSocmedByID(ctx, socmedID)
 	if err != nil {
 		return entity.SocialMedia{}, err
 	}
+	return res, nil
+}
 
-	fmt.Print("ini scmed -> ")
-	fmt.Printf("%+v\n", socmedDTO)
+func (sr *socmedService) AddNewSocmed(ctx context.Context, socmedCreate entity.SocialMediaCreate) (entity.SocialMedia, error) {
+	socmed := entity.SocialMedia{}
+	err := smapping.FillStruct(&socmed, smapping.MapFields(&socmedCreate))
+	if err != nil {
+		return entity.SocialMedia{}, err
+	}
 
 	res, err := sr.socmedRepository.CreateSocmed(ctx, socmed)
 
@@ -55,36 +59,23 @@ func (sr *socmedService) AddNewSocmed(ctx context.Context, socmedDTO dto.SocialM
 		return entity.SocialMedia{}, err
 	}
 
-	// user, err := sr.userRepository.GetUserById(ctx, socmed.UserID)
-	// if err != nil {
-	// 	return entity.SocialMedia{}, err
-	// }
-	// fmt.Print("user -> ");
-	// fmt.Printf("%+v\n", user)
-	// fmt.Println("socmed -> ", socmed);
-
-	// err = smapping.FillStruct(&res, smapping.MapFields(&user))
-	// if err != nil {
-	// 	return entity.SocialMedia{}, err
-	// }
-
 	return res, nil
 }
-func (sr *socmedService) DeleteSocmed(ctx context.Context, id uint) error{
+func (sr *socmedService) DeleteSocmed(ctx context.Context, id uint64) error {
 	err := sr.socmedRepository.DeleteSocmed(ctx, id)
 	if err != nil {
 		return err
 	}
 	return nil
 }
-func (sr *socmedService) UpdateSocmed(ctx context.Context, id uint, socmedUpdateDTO dto.SocialMediaUpdateDTO) (entity.SocialMedia, error) {
+func (sr *socmedService) UpdateSocmed(ctx context.Context, socmedUpdate entity.SocialMediaUpdate) (entity.SocialMedia, error) {
 	socmed := entity.SocialMedia{}
-	err := smapping.FillStruct(&socmed, smapping.MapFields(&socmedUpdateDTO))
+	err := smapping.FillStruct(&socmed, smapping.MapFields(&socmedUpdate))
 	if err != nil {
 		return entity.SocialMedia{}, err
 	}
 
-	resp, err := sr.socmedRepository.UpdateSocmed(ctx, entity.SocialMedia{})
+	resp, err := sr.socmedRepository.UpdateSocmed(ctx, socmed)
 	if err != nil {
 		return entity.SocialMedia{}, err
 	}

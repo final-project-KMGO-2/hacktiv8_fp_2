@@ -2,21 +2,18 @@ package service
 
 import (
 	"context"
-	"errors"
 	"fmt"
-	"hacktiv8_fp_2/dto"
 	"hacktiv8_fp_2/entity"
 	"hacktiv8_fp_2/repository"
-	"strconv"
 
 	"github.com/mashingan/smapping"
 )
 
 type UserService interface {
-	CreateUser(ctx context.Context, userDTO dto.UserRegisterDTO) (entity.User, error)
+	CreateUser(ctx context.Context, user entity.UserRegister) (entity.User, error)
 	GetUserByEmail(ctx context.Context, email string) (entity.User, error)
-	UpdateUser(ctx context.Context, userDTO dto.UserUpdateDTO) (entity.User, error)
-	DeleteUser(ctx context.Context, userID string) error
+	UpdateUser(ctx context.Context, userUpdate entity.UserUpdate) (entity.User, error)
+	DeleteUser(ctx context.Context, userID uint64) error
 }
 
 type userService struct {
@@ -29,9 +26,9 @@ func NewUserService(ur repository.UserRepository) UserService {
 	}
 }
 
-func (s *userService) CreateUser(ctx context.Context, userDTO dto.UserRegisterDTO) (entity.User, error) {
+func (s *userService) CreateUser(ctx context.Context, user entity.UserRegister) (entity.User, error) {
 	createdUser := entity.User{}
-	err := smapping.FillStruct(&createdUser, smapping.MapFields(&userDTO))
+	err := smapping.FillStruct(&createdUser, smapping.MapFields(&user))
 	if err != nil {
 		return createdUser, err
 	}
@@ -49,9 +46,9 @@ func (s *userService) GetUserByEmail(ctx context.Context, email string) (entity.
 	return s.userRepository.GetUserByEmail(ctx, email)
 }
 
-func (s *userService) UpdateUser(ctx context.Context, userDTO dto.UserUpdateDTO) (entity.User, error) {
+func (s *userService) UpdateUser(ctx context.Context, userUpdate entity.UserUpdate) (entity.User, error) {
 	user := entity.User{}
-	err := smapping.FillStruct(&user, smapping.MapFields(&userDTO))
+	err := smapping.FillStruct(&user, smapping.MapFields(&userUpdate))
 	if err != nil {
 		return user, err
 	}
@@ -63,13 +60,8 @@ func (s *userService) UpdateUser(ctx context.Context, userDTO dto.UserUpdateDTO)
 	return res, nil
 }
 
-func (s *userService) DeleteUser(ctx context.Context, userID string) error {
-	id, err := strconv.ParseUint(userID, 10, 64)
-	if err != nil {
-		return errors.New("incorrect id format")
-	}
-
-	err = s.userRepository.DeleteUser(ctx, id)
+func (s *userService) DeleteUser(ctx context.Context, userID uint64) error {
+	err := s.userRepository.DeleteUser(ctx, userID)
 	if err != nil {
 		return err
 	}
